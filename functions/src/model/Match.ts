@@ -3,7 +3,7 @@ import { IGame } from './IGame';
 
 export class Match {
 
-    id: string;
+    id: string | undefined;
     participant1: Bot;
     participant2: Bot;
     games: IGame[];
@@ -13,15 +13,15 @@ export class Match {
     startedAt: number | null;
     finishedAt: number | null;
 
-    constructor(id: string,
-                participant1: Bot,
+    constructor(participant1: Bot,
                 participant2: Bot,
                 games: IGame[],
                 state: "pending" | "ongoing" | "finished",
                 result: string,
                 winner: "1" | "2" | null,
                 startedAt: number | null,
-                finishedAt: number | null)
+                finishedAt: number | null,
+                id?: string)
     {
         this.id = id;
         this.participant1 = participant1;

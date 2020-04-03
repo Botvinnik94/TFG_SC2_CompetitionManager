@@ -1,8 +1,6 @@
-import { Match } from './Match';
-
 export interface IRound {
 
-    matches: Match[];
+    matches: string[];
     status: "pending" | "ongoing" | "completed";
     startedAt: number | null;
     finishedAt: number | null;

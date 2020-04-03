@@ -9,7 +9,7 @@ import { PersistenceType } from './dao/PersistenceType';
 // // https://firebase.google.com/docs/functions/typescript
 //
 export const helloWorld = functions.https.onRequest((request, response) => {
-    const com = new CompetitionInitializer(Container.getDAOFactory(PersistenceType.Firebase).getCompetitionDAO())
+    const com = new CompetitionInitializer(Container.getDAOFactory(PersistenceType.Firebase).getCompetitionDAO(), Container.getDAOFactory(PersistenceType.Firebase).getMatchDAO())
     com.initialize("2VCfFqLmrwXL6m7I0UQn")
     response.send("Hello from Firebase!");
 });

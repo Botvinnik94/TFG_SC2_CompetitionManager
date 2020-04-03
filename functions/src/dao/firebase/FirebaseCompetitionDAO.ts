@@ -56,8 +56,19 @@ export class FirebaseCompetitionDAO extends AbstractCompetitionDAO {
 
     async update(competition: Competition): Promise<void> {
 
+        const target = {
+            name: competition.name,
+            type: competition.type,
+            rounds: competition.rounds,
+            status: competition.status,
+            startingDate: competition.startingDate,
+            startedAt: competition.startedAt,
+            finishedAt: competition.finishedAt
+        };
+
+
         if(competition.id)
-            await Db.collection('competitions').doc(competition.id).update(competition);
+            await Db.collection('competitions').doc(competition.id).update(target);
         else
             throw new Error("Competition failed in update. Id not valid.")
 

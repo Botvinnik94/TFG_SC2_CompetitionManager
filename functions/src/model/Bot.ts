@@ -7,9 +7,9 @@ export class Bot {
     useravatar: string | undefined;
     race: string;
     script: string;
-    elo: number | undefined;
+    elo: number;
 
-    constructor(name: string, uid: string, script: string, race: string, elo?: number, id?: string, username?: string, useravatar?: string) {
+    constructor(name: string, uid: string, script: string, race: string, elo: number, id?: string, username?: string, useravatar?: string) {
         this.name = name;
         this.uid = uid;
         this.script = script;
