@@ -1,11 +1,10 @@
-import * as tournament from 'tournament'
 import * as GroupStage from 'groupstage'
 import * as Duel from 'duel'
 import { Competition } from '../model/Competition'
 
 export class TournamentFactory {
 
-    public static getTournament(competition: Competition): tournament {
+    public static getTournament(competition: Competition) {
 
         switch (competition.type) {
             case "round-robin":

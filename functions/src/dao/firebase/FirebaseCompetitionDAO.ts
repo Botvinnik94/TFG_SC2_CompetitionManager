@@ -1,34 +1,50 @@
 import { AbstractCompetitionDAO } from "../AbstractCompetitionDAO";
 import { Competition } from "../../model/Competition";
-import { assignDefined } from "../../utils/assignDefined"
+//import { assignDefined } from "../../utils/assignDefined"
 import { Db } from '../../firebase/Db';
 import { Bot } from "../../model/Bot";
-
+//import * as admin from 'firebase-admin'
+/*
 export const competitionConverter = {
-    toFirestore(competition: Competition): firebase.firestore.DocumentData {
+    toFirestore(competition: Competition): admin.firestore.DocumentData {
         const data = assignDefined({}, competition);
         return data;
     },
     fromFirestore(
-        snapshot: firebase.firestore.QueryDocumentSnapshot,
-        options: firebase.firestore.SnapshotOptions
+        snapshot: admin.firestore.QueryDocumentSnapshot,
     ): Competition {
-        const data = snapshot.data(options)!;
+        const data = snapshot.data();
         return new Competition([], data.name, data.type, data.rounds, 
                                 data.rankings, data.status, data.startingDate, 
                                 data.startedAt, data.finishedAt, snapshot.id);
     }
 }
 
+export const botConverter = {
+    toFirestore(bot: Bot): admin.firestore.DocumentData {
+        const data = assignDefined({}, bot);
+        return data;
+    },
+    fromFirestore(
+        snapshot: admin.firestore.QueryDocumentSnapshot,
+    ): Bot {
+        const data = snapshot.data()!;
+        return new Bot(data.name, data.uid, data.script, data.race, data.elo, snapshot.id, data.username, data.useravatar);
+    }
+}
+*/
 export class FirebaseCompetitionDAO extends AbstractCompetitionDAO {
 
     async findOne(id: string): Promise<Competition> {
         const snapshot = await Db.collection('competitions')
-                                    .withConverter(competitionConverter)
+                                    //.withConverter(competitionConverter)
                                     .doc(id)
                                     .get();
 
-        const competition = snapshot.data();
+        const data = snapshot.data()!;
+        const competition = new Competition([], data.name, data.type, data.rounds, 
+                                            data.rankings, data.status, data.startingDate, 
+                                            data.startedAt, data.finishedAt, snapshot.id);
         if(competition) {
             competition.participants = await this.getParticipantsFromCompetition(id);
             return competition;
@@ -40,7 +56,10 @@ export class FirebaseCompetitionDAO extends AbstractCompetitionDAO {
 
     async update(competition: Competition): Promise<void> {
 
-        await Db.collection('competitions').doc(competition.id).update(competition);
+        if(competition.id)
+            await Db.collection('competitions').doc(competition.id).update(competition);
+        else
+            throw new Error("Competition failed in update. Id not valid.")
 
     }
 
@@ -56,11 +75,12 @@ export class FirebaseCompetitionDAO extends AbstractCompetitionDAO {
         const participantsSnapshot = await Db.collection('competitions')
                                                 .doc(competitionId)
                                                 .collection('participants')
-                                                .withConverter(botConverter)
+                                                //.withConverter(botConverter)
                                                 .get();
 
         const participants = participantsSnapshot.docs.map( botSnap => {
-            return botSnap.data()
+            const data = botSnap.data()!;
+            return new Bot(data.name, data.uid, data.script, data.race, data.elo, botSnap.id, data.username, data.useravatar);
         });
 
         return participants;
