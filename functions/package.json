@@ -19,6 +19,7 @@
     "firebase-admin": "^8.10.0",
     "firebase-functions": "^3.3.0",
     "groupstage": "^3.1.1",
+    "sub-events": "^1.8.4",
     "tournament": "^3.2.0"
   },
   "devDependencies": {

@@ -1,9 +1,9 @@
-import { AbstractCompetitionDAO } from "./AbstractCompetitionDAO";
+import { AbstractTournamentDAO } from "./AbstractTournamentDAO";
 import { AbstractMatchDAO } from "./AbstractMatchDAO";
 
 export interface IDAOFactory {
 
-    getCompetitionDAO(): AbstractCompetitionDAO
+    getTournamentDAO(): AbstractTournamentDAO
     getMatchDAO(): AbstractMatchDAO
 
 }

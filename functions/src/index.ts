@@ -1,6 +1,6 @@
 import * as functions from 'firebase-functions';
 
-import { CompetitionInitializer } from './modules/CompetitionInitializer';
+import { TournamentManagerController } from './modules/TournamentManagerController';
 import { Container } from './dao/Container';
 import { PersistenceType } from './dao/PersistenceType';
 
@@ -9,8 +9,8 @@ import { PersistenceType } from './dao/PersistenceType';
 // // https://firebase.google.com/docs/functions/typescript
 //
 export const helloWorld = functions.https.onRequest((request, response) => {
-    const com = new CompetitionInitializer(Container.getDAOFactory(PersistenceType.Firebase).getCompetitionDAO(), Container.getDAOFactory(PersistenceType.Firebase).getMatchDAO())
-    com.initialize("2VCfFqLmrwXL6m7I0UQn")
+    const com = new TournamentManagerController(Container.getDAOFactory(PersistenceType.Firebase).getTournamentDAO())
+    com.initializeTournament("2VCfFqLmrwXL6m7I0UQn")
     response.send("Hello from Firebase!");
 });
 

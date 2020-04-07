@@ -1,8 +1,9 @@
-import { Bot } from './Bot';
+import { IPlayer } from "../IPlayer";
 
-export interface IGame {
-    participant1: Bot;
-    participant2: Bot;
+export interface IStarcraftGame {
+
+    participant1: IPlayer;
+    participant2: IPlayer;
     winner: "1" | "2" | "draw" | null;
     state: "pending" | "ongoing" | "finished";
     map: string;

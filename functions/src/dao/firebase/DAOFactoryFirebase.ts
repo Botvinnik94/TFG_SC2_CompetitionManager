@@ -4,7 +4,7 @@ import { FirebaseMatchDAO } from './FirebaseMatchDAO'
 
 export class DAOFactoryFirebase implements IDAOFactory {
 
-    getCompetitionDAO(): FirebaseCompetitionDAO {
+    getTournamentDAO(): FirebaseCompetitionDAO {
         return new FirebaseCompetitionDAO();
     }
 

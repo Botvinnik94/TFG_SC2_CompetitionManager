@@ -1,4 +1,4 @@
-import { Match } from "../model/Match";
+import { Match } from "../model/StarcraftTournament/StarcraftMatch";
 
 export abstract class AbstractMatchDAO {
 

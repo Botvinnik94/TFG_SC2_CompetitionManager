@@ -1,4 +1,6 @@
-export class Bot {
+import { IPlayer } from "../IPlayer";
+
+export class Bot implements IPlayer {
 
     id: string | undefined;
     name: string;
@@ -19,4 +21,5 @@ export class Bot {
         this.username = username;
         this.useravatar = useravatar;
     }
+
 }

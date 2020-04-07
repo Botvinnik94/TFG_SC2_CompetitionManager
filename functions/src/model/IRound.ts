@@ -1,7 +1,9 @@
-export interface IRound {
+import { IMatch } from "./IMatch";
 
-    matches: string[];
-    status: "pending" | "ongoing" | "completed";
+export interface IRound<TMatch extends IMatch> {
+
+    matches: TMatch[];
+    status: "pending" | "ongoing" | "finished";
     startedAt: number | null;
     finishedAt: number | null;
 

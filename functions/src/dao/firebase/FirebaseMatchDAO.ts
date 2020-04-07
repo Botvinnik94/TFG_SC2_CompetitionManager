@@ -1,5 +1,5 @@
 import { AbstractMatchDAO } from "../AbstractMatchDAO";
-import { Match } from "../../model/Match";
+import { Match } from "../../model/StarcraftTournament/StarcraftMatch";
 import { Db } from "../../firebase/Db";
 import { assignDefined } from '../../utils/assignDefined'
 

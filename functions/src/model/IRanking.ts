@@ -1,8 +1,12 @@
-import { Bot } from './Bot';
+import { IPlayer } from './IPlayer';
 
 export interface IRanking {
 
-    bot: Bot;
-    statistics: any;
+    player: IPlayer;
+    for: number;
+    against: number;
+    wins: number;
+    draws: number;
+    loses: number;
 
 }

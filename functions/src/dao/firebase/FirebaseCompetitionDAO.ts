@@ -1,8 +1,8 @@
-import { AbstractCompetitionDAO } from "../AbstractCompetitionDAO";
-import { Competition } from "../../model/Competition";
+import { Competition } from "../../model/Tournaments/RoundRobin";
 //import { assignDefined } from "../../utils/assignDefined"
 import { Db } from '../../firebase/Db';
-import { Bot } from "../../model/Bot";
+import { Bot } from "../../model/StarcraftTournament/Bot";
+import { AbstractTournamentDAO } from "../AbstractTournamentDAO";
 //import * as admin from 'firebase-admin'
 /*
 export const competitionConverter = {
@@ -33,7 +33,7 @@ export const botConverter = {
     }
 }
 */
-export class FirebaseCompetitionDAO extends AbstractCompetitionDAO {
+export class FirebaseCompetitionDAO extends AbstractTournamentDAO {
 
     async findOne(id: string): Promise<Competition> {
         const snapshot = await Db.collection('competitions')
