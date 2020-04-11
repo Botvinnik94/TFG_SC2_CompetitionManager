@@ -218,7 +218,7 @@ export class RoundRobin<TMatch extends IMatch, TRanking extends IRanking> implem
     public findMatches(status?: "pending" | "ongoing" | "finished" | "waiting", playerId?: string, roundNumber?: number): TMatch[] {
         let matches: TMatch[]; 
 
-        if(roundNumber) {
+        if(roundNumber != null) {
             matches = this.rounds[roundNumber].matches;
         }
         else{

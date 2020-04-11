@@ -116,6 +116,7 @@ export class StarcraftMatch implements IMatch {
     addPlayer(player: IPlayer): boolean {
         if(this.players.length < 2) {
             this.players.push(player);
+            if(this.players.length == 2) this.status = "pending";
             return true;
         }
         else {
