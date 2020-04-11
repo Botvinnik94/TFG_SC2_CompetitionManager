@@ -16,7 +16,6 @@ export interface ITournament<TMatch extends IMatch, TRanking extends IRanking> {
     startedAt: number | null;
     finishedAt: number | null;
 
-    score(match: TMatch): boolean;
     findMatches(status?: "waiting" | "pending" | "ongoing" | "finished", playerId?: string, roundNumber?: number): TMatch[];
     results(playerId: string): TRanking | undefined;
 

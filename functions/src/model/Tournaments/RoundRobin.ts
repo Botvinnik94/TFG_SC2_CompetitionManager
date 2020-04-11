@@ -211,10 +211,6 @@ export class RoundRobin<TMatch extends IMatch, TRanking extends IRanking> implem
     }
 
 
-    public score(match: TMatch): boolean {
-        throw new Error("Method not implemented.");
-    }
-
     public findMatches(status?: "pending" | "ongoing" | "finished" | "waiting", playerId?: string, roundNumber?: number): TMatch[] {
         let matches: TMatch[]; 
 

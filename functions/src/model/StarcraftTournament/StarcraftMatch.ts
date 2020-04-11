@@ -124,4 +124,31 @@ export class StarcraftMatch implements IMatch {
         }
     }
 
+    start(): boolean {
+        if(this.status === "pending") {
+            this.status = "ongoing"
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    score(game: IStarcraftGame): boolean {
+
+        if(game.participant1.id === this.players[0].id && game.participant2.id === this.players[1].id && this.status === "ongoing") {
+            if(game.winner !== 'draw') {
+                if(++this.result[game.winner] === (Math.floor(this.bestOf / 2) + 1)) {
+                    this.status = "finished";
+                    this.finishedAt = Date.now();
+                }
+            }
+
+            this.games.push(game);
+            return true;
+        }
+
+        return false;
+    }
+
 }

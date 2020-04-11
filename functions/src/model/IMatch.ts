@@ -9,4 +9,6 @@ export interface IMatch {
     finishedAt: number | null;
 
     addPlayer(player: IPlayer): boolean;
+    start(): boolean;
+    score(resultObject: Object): boolean;
 }
