@@ -1,4 +1,5 @@
 import { IPlayer } from "./IPlayer";
+import { SubEvent } from "sub-events";
 
 export interface IMatch {
 
@@ -8,7 +9,11 @@ export interface IMatch {
     startedAt: number | null;
     finishedAt: number | null;
 
-    addPlayer(player: IPlayer): boolean;
-    start(): boolean;
-    score(resultObject: Object): boolean;
+    readonly onMatchReady: SubEvent<void>;
+    readonly onMatchStarted: SubEvent<void>;
+    readonly onMatchFinished: SubEvent<void>;
+
+    addPlayer(player: IPlayer): void;
+    start(): void;
+    score(resultObject: Object): void;
 }

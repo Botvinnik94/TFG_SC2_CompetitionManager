@@ -1,8 +1,8 @@
-import { IRanking } from "./IRanking";
-import { IPlayer } from "./IPlayer";
+// import { IRanking } from "./IRanking";
+// import { IPlayer } from "./IPlayer";
 
-export interface IRankingFactory<TRanking extends IRanking> {
+// export interface IRankingFactory<TRanking extends IRanking> {
 
-    createRanking(player: IPlayer): TRanking;
+//     createRanking(player: IPlayer): TRanking;
 
-}
+// }

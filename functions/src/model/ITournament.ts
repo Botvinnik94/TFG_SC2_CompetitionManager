@@ -2,22 +2,29 @@ import { IMatch } from "./IMatch";
 import { IRound } from "./IRound";
 import { IRanking } from "./IRanking";
 import { IPlayer } from "./IPlayer";
-import { IMatchFactory } from "./IMatchFactory";
-import { IRankingFactory } from "./IRankingFactory";
+import { ITournamentElementsFactory } from "./ITournamentElementsFactory";
+import { IndexId } from "./IndexId";
 
-export interface ITournament<TMatch extends IMatch, TRanking extends IRanking> {
+export interface ITournament {
 
     id: string | undefined;
     name: string;
-    rounds: IRound<TMatch>[];
-    rankings: TRanking[];
+    rounds: IRound[];
+    rankings: IRanking[];
     players: IPlayer[];
     status: "open" | "pending" | "ongoing" | "finished"
     startedAt: number | null;
     finishedAt: number | null;
 
-    findMatches(status?: "waiting" | "pending" | "ongoing" | "finished", playerId?: string, roundNumber?: number): TMatch[];
-    results(playerId: string): TRanking | undefined;
+    enrollPlayer(player: IPlayer): void;
+    withdrawPlayer(playerId: string): void;
 
-    initializeTournament(matchFactory: IMatchFactory<TMatch>, rankingFactory: IRankingFactory<TRanking>): void;
+    findMatches(status?: "waiting" | "pending" | "ongoing" | "finished", playerId?: string, roundNumber?: number): IMatch[];
+    results(playerId: string): IRanking | undefined;
+
+    initializeTournament(tournamentFactory: ITournamentElementsFactory): void;
+    scoreMatch(indexId: IndexId, resultObject: Object): void;
+
+    onRoundStartedHandler(): void;
+    onRoundFinishedHandler(): void
 }

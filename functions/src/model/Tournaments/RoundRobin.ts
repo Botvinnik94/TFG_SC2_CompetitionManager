@@ -3,8 +3,8 @@ import { IMatch } from "../IMatch";
 import { IRanking } from "../IRanking";
 import { IRound } from '../IRound';
 import { IPlayer } from '../IPlayer';
-import { IMatchFactory } from "../IMatchFactory";
-import { IRankingFactory } from "../IRankingFactory";
+import { ITournamentElementsFactory } from "../ITournamentElementsFactory";
+import { IndexId } from "../IndexId";
 
 /*import { Bot } from "./Bot";
 import { Match } from "./Match";
@@ -180,20 +180,20 @@ export class Competition implements ITournament {
     }
 
 }*/
-export class RoundRobin<TMatch extends IMatch, TRanking extends IRanking> implements ITournament<TMatch, TRanking> {
+export class RoundRobin implements ITournament {
 
     id: string | undefined;
     name: string;
-    rounds: IRound<TMatch>[];
-    rankings: TRanking[];
+    rounds: IRound[];
+    rankings: IRanking[];
     players: IPlayer[];
     status: "open" | "pending" | "ongoing" | "finished";
     startedAt: number | null;
     finishedAt: number | null;
 
     constructor(name: string, 
-                rounds: IRound<TMatch>[], 
-                rankings: TRanking[], 
+                rounds: IRound[], 
+                rankings: IRanking[], 
                 players: IPlayer[], 
                 status: "open" | "pending" | "ongoing" | "finished", 
                 startedAt: number | null, 
@@ -208,14 +208,57 @@ export class RoundRobin<TMatch extends IMatch, TRanking extends IRanking> implem
         this.startedAt = startedAt;
         this.finishedAt = finishedAt;
         this.id = id;
+
+        this.rounds.forEach(round => {
+            round.onRoundStarted.subscribe( () => {
+                this.onRoundStartedHandler();
+            });
+            round.onRoundFinished.subscribe( () => {
+                this.onRoundFinishedHandler();
+            })
+        })
     }
 
+    onRoundStartedHandler(): void {
+        if(this.status === "pending") {
+            this.status = "ongoing";
+            this.startedAt = Date.now();
+        }
+    }
 
-    public findMatches(status?: "pending" | "ongoing" | "finished" | "waiting", playerId?: string, roundNumber?: number): TMatch[] {
-        let matches: TMatch[]; 
+    onRoundFinishedHandler(): void {
+        const roundNotFinished = this.rounds.find( value => value.status !== "finished");
+        if(!roundNotFinished) {
+            this.status = "finished";
+            this.finishedAt = Date.now();
+        }
+    }
+
+    public enrollPlayer(player: IPlayer): void {
+        const result = this.players.find( value => value.id === player.id );
+        if(!result) {
+            this.players.push(player);
+        }
+        else {
+            throw new Error(`Player ${player.id} already enrolled in the tournament`);
+        }
+    }
+
+    public withdrawPlayer(playerId: string): void {
+        const index = this.players.findIndex( value => value.id === playerId )
+        if(index != -1) {
+            this.players.splice(index, 1);
+        }
+        else {
+            throw new Error(`Player ${playerId} is not enrolled in the tournament`)
+        }
+    }
+
+    public findMatches(status?: "pending" | "ongoing" | "finished" | "waiting", playerId?: string, roundNumber?: number): IMatch[] {
+        let matches: IMatch[] = []; 
 
         if(roundNumber != null) {
-            matches = this.rounds[roundNumber].matches;
+            matches = this.rounds[roundNumber]?.matches;
         }
         else{
             matches = Array.prototype.concat.apply([], this.rounds.map( round => round.matches)); // Flatten
@@ -232,58 +275,71 @@ export class RoundRobin<TMatch extends IMatch, TRanking extends IRanking> implem
         return matches;
     }
 
-    public results(playerId: string): TRanking | undefined {
+    public results(playerId: string): IRanking | undefined {
         return this.rankings.find( value => value.player.id === playerId );
     }
 
-    public initializeTournament(matchFactory: IMatchFactory<TMatch>, rankingFactory: IRankingFactory<TRanking>): void {
+    public initializeTournament(tournamentFactory: ITournamentElementsFactory): void {
 
-        const rotablePlayersArray = this.players.slice(1);
+        if(this.status === "open") {
+            const rotablePlayersArray = this.players.slice(1);
 
-        // If the amount of players is not even we add a dummy one for the algorithm, but we dont create matches with him
-        if(this.players.length % 2 !== 0) {
-            rotablePlayersArray.push({
-                name: 'bye',
-                elo: 0,
-                id: undefined
-            });
-        }
-
-        for (let i = 0; i < this.players.length; i++) {
-            const round: IRound<TMatch> = {
-                matches: [],
-                status: "pending",
-                startedAt: null,
-                finishedAt: null
+            // If the amount of players is not even we add a dummy one for the algorithm, but we dont create matches with him
+            if(this.players.length % 2 !== 0) {
+                rotablePlayersArray.push({
+                    name: 'bye',
+                    elo: 0,
+                    id: undefined
+                });
             }
-            for (let j = 0; j < Math.floor(rotablePlayersArray.length / 2); j++) {
-                if(rotablePlayersArray[j].id != null && rotablePlayersArray[rotablePlayersArray.length-2-j].id != null) {
-                    const match = matchFactory.createMatch();
-                    match.addPlayer(rotablePlayersArray[j]);
-                    match.addPlayer(rotablePlayersArray[rotablePlayersArray.length-2-j]);
-                    round.matches.push(match);
+
+            for (let i = 0; i < this.players.length; i++) {
+                const round = tournamentFactory.createTournamentRound();
+                for (let j = 0; j < Math.floor(rotablePlayersArray.length / 2); j++) {
+                    if(rotablePlayersArray[j].id != null && rotablePlayersArray[rotablePlayersArray.length-2-j].id != null) {
+                        const match = tournamentFactory.createTournamentMatch();
+                        match.addPlayer(rotablePlayersArray[j]);
+                        match.addPlayer(rotablePlayersArray[rotablePlayersArray.length-2-j]);
+                        round.addMatch(match);
+                    }
                 }
+
+                if(rotablePlayersArray[rotablePlayersArray.length - 1].id != null) {
+                    const match = tournamentFactory.createTournamentMatch();
+                    match.addPlayer(this.players[0]);
+                    match.addPlayer(rotablePlayersArray[rotablePlayersArray.length - 1]);
+                    round.addMatch(match);
+                }
+
+                this.addRound(round);
+
+                // Rotate
+                let p = rotablePlayersArray.shift();
+                if(p) rotablePlayersArray.push(p);
+
+                // Create ranking for the player
+                this.rankings.push(tournamentFactory.createTournamentRanking(this.players[i]));
             }
 
-            if(rotablePlayersArray[rotablePlayersArray.length - 1].id != null) {
-                const match = matchFactory.createMatch();
-                match.addPlayer(this.players[0]);
-                match.addPlayer(rotablePlayersArray[rotablePlayersArray.length - 1]);
-                round.matches.push(match);
-            }
-
-            this.rounds.push(round);
-
-            // Rotate
-            let p = rotablePlayersArray.shift();
-            if(p) rotablePlayersArray.push(p);
-
-            // Create ranking for the player
-            this.rankings.push(rankingFactory.createRanking(this.players[i]));
+            this.status = "pending";
         }
-
-        this.status = "pending";
+        else {
+            throw new Error("Tournament already initializated");
+        }
     }
 
+    public scoreMatch(indexId: IndexId, resultObject: Object): void {
+        this.rounds[indexId.roundIndex].matches[indexId.matchIndex].score(resultObject);
+    }
+
+    private addRound(round: IRound): void {
+        round.onRoundStarted.subscribe(() => {
+            this.onRoundStartedHandler();
+        });
+        round.onRoundFinished.subscribe(() => {
+            this.onRoundFinishedHandler();
+        });
+        this.rounds.push(round);
+    }
 
 }

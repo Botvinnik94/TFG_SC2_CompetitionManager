@@ -2,6 +2,7 @@ import { IMatch } from "../IMatch";
 import { IPlayer } from '../IPlayer';
 import { IStarcraftGame } from "./IStarcraftGame";
 import { IndexId } from "../IndexId";
+import { SubEvent } from 'sub-events';
 
 /*import { Bot } from './Bot';
 import { IGame } from '../IGame';
@@ -92,6 +93,10 @@ export class StarcraftMatch implements IMatch {
     startedAt: number | null;
     finishedAt: number | null;
 
+    readonly onMatchReady: SubEvent<void> = new SubEvent();
+    readonly onMatchStarted: SubEvent<void> = new SubEvent();
+    readonly onMatchFinished: SubEvent<void> = new SubEvent();
+
     constructor(players: IPlayer[], 
                 result: number[], 
                 bestOf: number, 
@@ -113,42 +118,44 @@ export class StarcraftMatch implements IMatch {
         this.indexId = indexId;
     }
 
-    addPlayer(player: IPlayer): boolean {
+    addPlayer(player: IPlayer): void {
         if(this.players.length < 2) {
             this.players.push(player);
-            if(this.players.length == 2) this.status = "pending";
-            return true;
+            if(this.players.length == 2) {
+                this.status = "pending";
+                this.onMatchReady.emit();
+            }
         }
         else {
-            return false;
+            throw new Error(`Match ${this.indexId} is full of players`);
         }
     }
 
-    start(): boolean {
+    start(): void {
         if(this.status === "pending") {
             this.status = "ongoing"
-            return true;
+            this.startedAt = Date.now();
+            this.onMatchStarted.emit();
         }
         else {
-            return false;
+            throw new Error(`Match ${this.indexId} has already started`);
         }
     }
 
-    score(game: IStarcraftGame): boolean {
+    score(game: IStarcraftGame): void {
 
         if(game.participant1.id === this.players[0].id && game.participant2.id === this.players[1].id && this.status === "ongoing") {
-            if(game.winner !== 'draw') {
-                if(++this.result[game.winner] === (Math.floor(this.bestOf / 2) + 1)) {
-                    this.status = "finished";
-                    this.finishedAt = Date.now();
-                }
-            }
-
             this.games.push(game);
-            return true;
+            if(game.winner !== 'draw' && ++this.result[game.winner] === (Math.floor(this.bestOf / 2) + 1)) {
+                this.status = "finished";
+                this.finishedAt = Date.now();
+                this.onMatchFinished.emit();
+            }
+        }
+        else {
+            throw new Error(`Match ${this.indexId} is not ongoing or the game does not correspond with the match`);
         }
 
-        return false;
     }
 
 }

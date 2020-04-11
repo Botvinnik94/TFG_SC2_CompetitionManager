@@ -1,7 +1,7 @@
-import { IMatch } from "./IMatch";
+// import { IMatch } from "./IMatch";
 
-export interface IMatchFactory<TMatch extends IMatch> {
+// export interface IMatchFactory<TMatch extends IMatch> {
 
-    createMatch(): TMatch
+//     createMatch(): TMatch
 
-}
+// }

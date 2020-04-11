@@ -1,9 +1,7 @@
 import { ITournament } from "./ITournament";
-import { IMatch } from "./IMatch";
-import { IRanking } from "./IRanking";
 
-export interface ITournamentFactory<TMatch extends IMatch, TRanking extends IRanking> {
+export interface ITournamentFactory {
 
-    createTournament(name: string): ITournament<TMatch, TRanking>;
+    createTournament(name: string): ITournament
 
 }
