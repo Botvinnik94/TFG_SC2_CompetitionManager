@@ -245,7 +245,7 @@ export class RoundRobin<TMatch extends IMatch, TRanking extends IRanking> implem
         const rotablePlayersArray = this.players.slice(1);
 
         // If the amount of players is not even we add a dummy one for the algorithm, but we dont create matches with him
-        if(this.players.length % 2 != 0) {
+        if(this.players.length % 2 !== 0) {
             rotablePlayersArray.push({
                 name: 'bye',
                 elo: 0,
@@ -260,8 +260,8 @@ export class RoundRobin<TMatch extends IMatch, TRanking extends IRanking> implem
                 startedAt: null,
                 finishedAt: null
             }
-            for (let j = 0; j < rotablePlayersArray.length / 2; j++) {
-                if(rotablePlayersArray[j].name !== 'bye' || rotablePlayersArray[rotablePlayersArray.length-2-j].name !== 'bye') {
+            for (let j = 0; j < Math.floor(rotablePlayersArray.length / 2); j++) {
+                if(rotablePlayersArray[j].id != null && rotablePlayersArray[rotablePlayersArray.length-2-j].id != null) {
                     const match = matchFactory.createMatch();
                     match.addPlayer(rotablePlayersArray[j]);
                     match.addPlayer(rotablePlayersArray[rotablePlayersArray.length-2-j]);
@@ -269,7 +269,7 @@ export class RoundRobin<TMatch extends IMatch, TRanking extends IRanking> implem
                 }
             }
 
-            if(rotablePlayersArray[rotablePlayersArray.length - 1].name !== 'bye') {
+            if(rotablePlayersArray[rotablePlayersArray.length - 1].id != null) {
                 const match = matchFactory.createMatch();
                 match.addPlayer(this.players[0]);
                 match.addPlayer(rotablePlayersArray[rotablePlayersArray.length - 1]);
