@@ -5,24 +5,32 @@ import { IPlayer } from "./IPlayer";
 import { ITournamentElementsFactory } from "./ITournamentElementsFactory";
 import { IndexId } from "./IndexId";
 
-export interface ITournament {
+export interface ITournament<TPlayer extends IPlayer, 
+                             TMatch extends IMatch<TPlayer>, 
+                             TRanking extends IRanking<TPlayer>, 
+                             TRound extends IRound<TPlayer, TMatch>>
+{
 
     id: string | undefined;
     name: string;
-    rounds: IRound[];
-    rankings: IRanking[];
-    players: IPlayer[];
-    status: "open" | "pending" | "ongoing" | "finished"
+    rounds: TRound[];
+    rankings: TRanking[];
+    players: TPlayer[];
+    status: "open" | "pending" | "ongoing" | "finished";
+    startingDate: number;
     startedAt: number | null;
     finishedAt: number | null;
 
-    enrollPlayer(player: IPlayer): void;
+    readonly type: string;
+    tournamentElementsFactory: ITournamentElementsFactory<TPlayer, TMatch, TRanking, TRound>;
+
+    enrollPlayer(player: TPlayer): void;
     withdrawPlayer(playerId: string): void;
 
-    findMatches(status?: "waiting" | "pending" | "ongoing" | "finished", playerId?: string, roundNumber?: number): IMatch[];
-    results(playerId: string): IRanking | undefined;
+    findMatches(status?: "waiting" | "pending" | "ongoing" | "finished", playerId?: string, roundNumber?: number): TMatch[];
+    results(playerId: string): TRanking | undefined;
 
-    initializeTournament(tournamentFactory: ITournamentElementsFactory): void;
+    initializeTournament(): void;
     scoreMatch(indexId: IndexId, resultObject: Object): void;
 
     onRoundStartedHandler(): void;

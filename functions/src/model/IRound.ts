@@ -1,9 +1,10 @@
 import { IMatch } from "./IMatch";
 import { SubEvent } from "sub-events";
+import { IPlayer } from "./IPlayer";
 
-export interface IRound {
+export interface IRound<TPlayer extends IPlayer, TMatch extends IMatch<TPlayer>> {
 
-    matches: IMatch[];
+    matches: TMatch[];
     status: "pending" | "ongoing" | "finished";
     startedAt: number | null;
     finishedAt: number | null;
@@ -15,5 +16,5 @@ export interface IRound {
     onMatchReadyHandler(): void;
     onMatchFinishedHandler(): void;
 
-    addMatch(match: IMatch): void;
+    addMatch(match: TMatch): void;
 }

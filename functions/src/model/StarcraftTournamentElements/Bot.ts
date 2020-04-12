@@ -2,7 +2,7 @@ import { IPlayer } from "../IPlayer";
 
 export class Bot implements IPlayer {
 
-    id: string | undefined;
+    id: string;
     name: string;
     uid: string;
     username: string | undefined;
@@ -11,7 +11,7 @@ export class Bot implements IPlayer {
     script: string;
     elo: number;
 
-    constructor(name: string, uid: string, script: string, race: string, elo: number, id?: string, username?: string, useravatar?: string) {
+    constructor(id: string, name: string, uid: string, script: string, race: string, elo: number, username?: string, useravatar?: string) {
         this.name = name;
         this.uid = uid;
         this.script = script;

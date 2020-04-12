@@ -1,17 +1,16 @@
 import { PersistenceType } from "./PersistenceType";
 import { IDAOFactory } from "./IDAOFactory";
-import { DAOFactoryFirebase } from "./firebase/DAOFactoryFirebase";
+import { IPlayer } from "../model/IPlayer";
+import { IMatch } from "../model/IMatch";
+import { IRanking } from "../model/IRanking";
+import { IRound } from "../model/IRound";
 
-export class Container {
+export abstract class Container<TPlayer extends IPlayer, 
+                                TMatch extends IMatch<TPlayer>, 
+                                TRanking extends IRanking<TPlayer>, 
+                                TRound extends IRound<TPlayer, TMatch>>
+{
 
-    public static getDAOFactory(type: PersistenceType): IDAOFactory {
-        switch (type) {
-            case PersistenceType.Firebase:
-                return new DAOFactoryFirebase()
-        
-            default:
-                throw new Error("Invalid persistence type");
-        }
-    }
+    public abstract getDAOFactory(type: PersistenceType): IDAOFactory<TPlayer, TMatch, TRanking, TRound>;
 
 }

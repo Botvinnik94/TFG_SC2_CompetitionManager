@@ -1,8 +1,8 @@
 import { IPlayer } from './IPlayer';
 
-export interface IRanking {
+export interface IRanking<TPlayer extends IPlayer> {
 
-    player: IPlayer;
+    player: TPlayer;
     for: number;
     against: number;
     wins: number;

@@ -1,16 +1,16 @@
 import { IRanking } from "../IRanking";
-import { IPlayer } from "../IPlayer";
+import { Bot } from "./Bot";
 
-export class StarcraftRanking implements IRanking {
+export class StarcraftRanking implements IRanking<Bot> {
 
-    player: IPlayer;
+    player: Bot;
     for: number;
     against: number;
     wins: number;
     draws: number;
     loses: number;
 
-    constructor(player: IPlayer, scoreFor: number, scoreAgainst: number, wins: number, draws: number, loses: number)
+    constructor(player: Bot, scoreFor: number, scoreAgainst: number, wins: number, draws: number, loses: number)
     {
         this.player = player;
         this.for = scoreFor;

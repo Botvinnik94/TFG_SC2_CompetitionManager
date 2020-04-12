@@ -1,24 +1,28 @@
 import { ITournamentElementsFactory } from "../ITournamentElementsFactory";
 import { StarcraftMatch } from "./StarcraftMatch";
 import { StarcraftRanking } from "./StarcraftRanking";
-import { IPlayer } from "../IPlayer";
 import { StarcraftRound } from "./StarcraftRound";
 import { IStarcraftGame } from "./IStarcraftGame";
+import { IndexId } from "../IndexId";
+import { Bot } from "./Bot";
 
-export class StarcraftTournamentElementsFactory implements ITournamentElementsFactory {
+export class StarcraftTournamentElementsFactory implements ITournamentElementsFactory<Bot, StarcraftMatch, StarcraftRanking, StarcraftRound> {
 
-    createTournamentMatch(  players?: IPlayer[],
+    createTournamentMatch(  indexId: IndexId,
+                            tournamentId?: string,
+                            players?: Bot[],
                             result?: number[],
                             status?: "waiting" | "pending" | "ongoing" | "finished",
                             startedAt?: number,
                             finishedAt?: number,
+                            id?: string,
                             games?: IStarcraftGame[],
                             bestOf?: number): StarcraftMatch
     {
-        return new StarcraftMatch(players ?? [], result ?? [0,0], bestOf ?? 3, games ?? [], status ?? "waiting", startedAt ?? null, finishedAt ?? null)
+        return new StarcraftMatch(indexId, players ?? [], result ?? [0,0], bestOf ?? 3, games ?? [], status ?? "waiting", startedAt ?? null, finishedAt ?? null, tournamentId, id)
     }
 
-    createTournamentRanking(player: IPlayer,
+    createTournamentRanking(player: Bot,
                             scoreFor?: number,
                             scoreAgainst?: number,
                             wins?: number,

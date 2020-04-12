@@ -1,10 +1,39 @@
 import { ITournamentFactory } from "../ITournamentFactory";
 import { RoundRobin } from "./RoundRobin";
+import { ITournamentElementsFactory } from "../ITournamentElementsFactory";
+import { IPlayer } from "../IPlayer";
+import { IRanking } from "../IRanking";
+import { IRound } from "../IRound";
+import { IMatch } from "../IMatch";
 
-export class RoundRobinFactory implements ITournamentFactory {
+export class RoundRobinFactory< TPlayer extends IPlayer,
+                                TMatch extends IMatch<TPlayer>,
+                                TRanking extends IRanking<TPlayer>,
+                                TRound extends IRound<TPlayer, TMatch>> 
 
-    createTournament(name: string): RoundRobin {
-        return new RoundRobin(name, [], [], [], "open", null, null);
+implements ITournamentFactory<TPlayer, TMatch, TRanking, TRound> {
+
+    createTournament(name: string, 
+                     startingDate: number,
+                     tournamentElementsFactory: ITournamentElementsFactory<TPlayer, TMatch, TRanking, TRound>,
+                     status?: "open" | "pending" | "ongoing" | "finished",
+                     players?: TPlayer[],
+                     rankings?: TRanking[],
+                     rounds?: TRound[],
+                     startedAt?: number,
+                     finishedAt?: number,
+                     id?: string): RoundRobin <TPlayer, TMatch, TRanking, TRound>
+    {
+        return new RoundRobin(  name,
+                                rounds ?? [],
+                                rankings ?? [],
+                                players ?? [],
+                                status ?? "open",
+                                startingDate,
+                                startedAt ?? null,
+                                finishedAt ?? null,
+                                tournamentElementsFactory,
+                                id);
     }
 
 }

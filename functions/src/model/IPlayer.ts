@@ -1,6 +1,6 @@
 export interface IPlayer {
 
-    id: string | undefined;
+    id: string;
     name: string;
     elo: number;
 

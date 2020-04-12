@@ -1,9 +1,12 @@
 import { IPlayer } from "./IPlayer";
 import { SubEvent } from "sub-events";
+import { IndexId } from "./IndexId";
 
-export interface IMatch {
+export interface IMatch<TPlayer extends IPlayer> {
 
-    players: IPlayer[];
+    indexId: IndexId;
+    tournamentId: string | undefined;
+    players: TPlayer[];
     result: number[];
     status: "waiting" | "pending" | "ongoing" | "finished";
     startedAt: number | null;
@@ -13,7 +16,7 @@ export interface IMatch {
     readonly onMatchStarted: SubEvent<void>;
     readonly onMatchFinished: SubEvent<void>;
 
-    addPlayer(player: IPlayer): void;
+    addPlayer(player: TPlayer): void;
     start(): void;
     score(resultObject: Object): void;
 }
