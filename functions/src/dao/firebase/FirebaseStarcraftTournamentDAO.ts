@@ -25,16 +25,8 @@ export class FirebaseStarcraftTournamentDAO extends AbstractTournamentDAO<Bot, S
 
     async create(tournament: ITournament<Bot, StarcraftMatch, StarcraftRanking, StarcraftRound>): Promise<string> {
 
-        const target = {
-            name: tournament.name,
-            type: tournament.type,
-            rounds: tournament.rounds,
-            rankings: tournament.rankings,
-            status: tournament.status,
-            startingDate: tournament.startingDate,
-            startedAt: tournament.startedAt,
-            finishedAt: tournament.finishedAt
-        };
+        const converter = new StarcraftTournamentFirestoreConverter();
+        const target = converter.toFirestore(tournament);
 
         const result = await Db.collection('tournaments').add(target);
         tournament.id = result.id;

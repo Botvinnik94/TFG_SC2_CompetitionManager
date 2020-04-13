@@ -67,12 +67,12 @@ export class StarcraftTournamentFirestoreConverter implements IFirestoreConverte
 
             const rounds = data.rounds.map( (roundData: any) => {
                 const matches = roundData.matches.map( (matchData: any) => {
-                    const players: Bot[] = data.players.map( (playerData: any) => {
+                    const players: Bot[] = matchData.players.map( (playerData: any) => {
                         return new Bot(playerData.id, playerData.name, playerData.uid,
                                        playerData.script, playerData.race, playerData.elo,
                                        playerData.username, playerData.useravatar)
                     });
-                    const games: IStarcraftGame[] = data.games.map ( (gameData: any) => {
+                    const games: IStarcraftGame[] = matchData.games.map ( (gameData: any) => {
                         return {
                             participant1: new Bot(gameData.participant1.id, gameData.participant1.name, gameData.participant1.uid,
                                                   gameData.participant1.script, gameData.participant1.race, gameData.participant1.elo,
