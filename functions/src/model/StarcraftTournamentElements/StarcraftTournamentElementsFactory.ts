@@ -19,7 +19,12 @@ export class StarcraftTournamentElementsFactory implements ITournamentElementsFa
                             games?: IStarcraftGame[],
                             bestOf?: number): StarcraftMatch
     {
-        return new StarcraftMatch(indexId, players ?? [], result ?? [0,0], bestOf ?? 3, games ?? [], status ?? "waiting", startedAt ?? null, finishedAt ?? null, tournamentId, id)
+        if(!bestOf || bestOf % 2 !== 0) {
+            return new StarcraftMatch(indexId, players ?? [], result ?? [0,0], bestOf ?? 3, games ?? [], status ?? "waiting", startedAt ?? null, finishedAt ?? null, tournamentId, id);
+        }
+        else {
+            throw new Error("BestOf parameter must be an odd number");
+        }
     }
 
     createTournamentRanking(player: Bot,

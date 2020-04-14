@@ -68,13 +68,24 @@ export class StarcraftMatch implements IMatch<Bot> {
         }
     }
 
-    score(game: IStarcraftGame): void {
+    score(game: IStarcraftGame, ranked?: boolean): void {
 
         if(game.participant1.id === this.players[0].id && game.participant2.id === this.players[1].id && this.status === "ongoing") {
             this.games.push(game);
             if(game.winner !== 'draw' && ++this.result[game.winner] === (Math.floor(this.bestOf / 2) + 1)) {
                 this.status = "finished";
                 this.finishedAt = Date.now();
+
+                if(ranked) {
+                    const EloRank = require("elo-rank").default;
+                    const elorank = new EloRank();
+                    const expectedParticipant1 = elorank.getExpected(game.participant1.elo, game.participant2.elo);
+                    const expectedParticipant2 = elorank.getExpected(game.participant2.elo, game.participant1.elo);
+
+                    game.participant1.elo = elorank.updateRating(expectedParticipant1, (game.winner == 0) ? 1 : 0, game.participant1.elo);
+                    game.participant2.elo = elorank.updateRating(expectedParticipant2, (game.winner == 1) ? 1 : 0, game.participant2.elo);
+                }
+
                 this.onMatchFinished.emit();
             }
         }

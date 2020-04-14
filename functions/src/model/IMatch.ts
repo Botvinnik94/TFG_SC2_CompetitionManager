@@ -18,5 +18,5 @@ export interface IMatch<TPlayer extends IPlayer> {
 
     addPlayer(player: TPlayer): void;
     start(): void;
-    score(resultObject: Object): void;
+    score(resultObject: Object, ranked?: boolean): void;
 }
