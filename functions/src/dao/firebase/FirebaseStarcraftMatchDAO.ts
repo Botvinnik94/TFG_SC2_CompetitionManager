@@ -6,6 +6,20 @@ import { StarcraftMatchFirestoreConverter } from "./Converters/StarcraftMatchFir
 
 export class FirebaseStarcraftMatchDAO extends AbstractMatchDAO<Bot, StarcraftMatch> {
 
+    async findOne(id: string): Promise<StarcraftMatch> {
+
+        const snapshot = await Db.collection('matches').doc(id).get();
+        const converter = new StarcraftMatchFirestoreConverter();
+        const match = converter.fromFirestore(snapshot);
+        if(match) {
+            return match;
+        }
+        else {
+            throw new Error(`Match ${id} not found in DB.`)
+        }
+
+    }
+
     async create(match: StarcraftMatch): Promise<string> {
 
         const converter = new StarcraftMatchFirestoreConverter();

@@ -5,6 +5,13 @@ import { BotFirebaseConverter } from "./Converters/BotFirebaseConverter";
 
 export class FirebaseBotDAO extends AbstractPlayerDAO<Bot> {
 
+    async update(player: Bot): Promise<void> {
+        const converter = new BotFirebaseConverter();
+        const target = converter.toFirestore(player);
+
+        await Db.collection('bots').doc(player.id).update(target);
+    }
+
     async findOne(id: string): Promise<Bot> {
 
         const snapshot = await Db.collection('bots').doc(id).get();

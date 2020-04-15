@@ -3,11 +3,17 @@ import * as express from 'express';
 //import * as cors from 'cors';
 import { StarcraftTournamentManagerController } from './controllers/StarcraftTournamentManagerController';
 import { StarcraftTournamentSerializer } from './utils/Serializers/StarcraftTournamentSerializer';
+import { auth } from './middleware/Auth';
+import { StarcraftMatchSerializer } from './utils/Serializers/StarcraftMatchSerializer';
 
 const privateApp = express();
 const publicApp = express();
 
-//app.use(cors({ origin: true }));
+// const bodyParser = require('body-parser');
+// publicApp.use(bodyParser.json());
+// publicApp.use(bodyParser.urlencoded({ extended: true }));
+const cors = require('cors');
+publicApp.use(cors({ origin: true }));
 
 // Private Api
 
@@ -30,12 +36,29 @@ privateApp.put('/:id/initialize', async (req, res) => {
 
 // Public Api
 
-publicApp.post('/', async (req, res) => {
+publicApp.get('/matches/:id', async (req, res) => {
+    if(req.params.id) {
+        const controller = new StarcraftTournamentManagerController();
+        try {
+            const match = await controller.getMatch(req.params.id);
+            const serializer = new StarcraftMatchSerializer();
+            res.status(200).send(serializer.serialize(match));
+        }
+        catch(error) {
+            console.error(error);
+            res.sendStatus(404);
+        }
+    }
+    else {
+        res.sendStatus(400);
+    }
+})
+
+publicApp.post('/', auth, async (req, res) => {
     if(req.body.date && req.body.name && req.body.type) {
         const controller = new StarcraftTournamentManagerController();
         try {
-            await controller.createTournament(req.body.type, req.body.name, req.body.date);
-            res.sendStatus(201);
+            res.status(201).send(await controller.createTournament(req.body.type, req.body.name, req.body.date));
         }
         catch(error) {
             console.error(error);
@@ -65,7 +88,7 @@ publicApp.get('/:id', async (req, res) => {
     }
 })
 
-publicApp.delete('/:id', async (req, res) => {
+publicApp.delete('/:id', auth, async (req, res) => {
     if(req.params.id) {
         const controller = new StarcraftTournamentManagerController();
         try {
@@ -82,7 +105,7 @@ publicApp.delete('/:id', async (req, res) => {
     }
 })
 
-publicApp.put('/:id/inscription', async (req, res) => {
+publicApp.put('/:id/inscription', auth, async (req, res) => {
     if(req.params.id) {
         const controller = new StarcraftTournamentManagerController();
         try {
@@ -99,7 +122,7 @@ publicApp.put('/:id/inscription', async (req, res) => {
     }
 })
 
-publicApp.delete('/:id/inscription', async (req, res) => {
+publicApp.delete('/:id/inscription', auth, async (req, res) => {
     if(req.params.id) {
         const controller = new StarcraftTournamentManagerController();
         try {

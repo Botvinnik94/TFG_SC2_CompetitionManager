@@ -37,24 +37,26 @@ export class TournamentService< TPlayer extends IPlayer,
 
     public async initializateTournament() {
         this.tournament.initializeTournament();
-        await this.tournamentDAO.update(this.tournament);
         this.tournament.rounds.forEach( round => {
             round.matches.forEach( async match => {
                 await this.matchDAO.create(match);
             })
         });
+        await this.tournamentDAO.update(this.tournament);
     }
 
     public async startMatch(indexId: IndexId) {
-        // this.tournament.rounds[indexId.roundIndex].matches[indexId.matchIndex].start();
-        // await this.tournamentDAO.update(this.tournament);
-        // await this.matchDAO.update();
+        const match = this.tournament.rounds[indexId.roundIndex].matches[indexId.matchIndex];
+        match.start();
+        await this.matchDAO.update(match);
+        await this.tournamentDAO.update(this.tournament);
     }
 
     public async reportMatch(indexId: IndexId, reportObject: Object) {
-        // this.tournament.scoreMatch(indexId, reportObject);
-        // await this.tournamentDAO.update(this.tournament);
-        // await this.matchDAO.update();
+        this.tournament.scoreMatch(indexId, reportObject);
+        const match = this.tournament.rounds[indexId.roundIndex].matches[indexId.matchIndex];
+        await this.matchDAO.update(match);
+        await this.tournamentDAO.update(this.tournament);
     }
 
 }

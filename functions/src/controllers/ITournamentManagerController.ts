@@ -12,8 +12,10 @@ export interface ITournamentManagerController<  TPlayer extends IPlayer,
 
     // Public tournament api
     getTournament(tournamentId: string): Promise<ITournament<TPlayer, TMatch, TRanking, TRound>>;
-    createTournament(type: string, name: string, startingDate: number): Promise<void>;
+    createTournament(type: string, name: string, startingDate: number): Promise<string>;
     deleteTournament(tournamentId: string): Promise<void>;
+
+    getMatch(matchId: string): Promise<TMatch>
 
     // Public tournament service api
     enrollPlayer(playerId: string, tournamentId: string): Promise<void>;

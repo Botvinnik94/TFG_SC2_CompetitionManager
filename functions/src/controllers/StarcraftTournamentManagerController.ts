@@ -17,17 +17,22 @@ export class StarcraftTournamentManagerController implements ITournamentManagerC
         await tournamentDAO.delete(tournamentId);
     }
 
-    async createTournament(type: "round-robin", name: string, startingDate: number): Promise<void> {
+    async createTournament(type: "round-robin", name: string, startingDate: number): Promise<string> {
         const tournamentSelector = new TournamentTypeSelector<Bot, StarcraftMatch, StarcraftRanking, StarcraftRound>();
         const tournamentFactory = tournamentSelector.getTournamentFactory(type);
         const tournamentDAO = (new StarcraftContainer()).getDAOFactory(PersistenceType.Firebase).createTournamentDAO();
         const tournament = tournamentFactory.createTournament(name, startingDate, new StarcraftTournamentElementsFactory());
-        await tournamentDAO.create(tournament);
+        return await tournamentDAO.create(tournament);
     }
 
     async getTournament(tournamentId: string): Promise<ITournament<Bot, StarcraftMatch, StarcraftRanking, StarcraftRound>> {
         const tournamentDAO = (new StarcraftContainer()).getDAOFactory(PersistenceType.Firebase).createTournamentDAO();
         return await tournamentDAO.findOne(tournamentId);
+    }
+
+    async getMatch(matchId: string): Promise<StarcraftMatch> {
+        const matchDAO = (new StarcraftContainer()).getDAOFactory(PersistenceType.Firebase).createMatchDAO();
+        return await matchDAO.findOne(matchId);
     }
 
     async enrollPlayer(playerId: string, tournamentId: string): Promise<void> {

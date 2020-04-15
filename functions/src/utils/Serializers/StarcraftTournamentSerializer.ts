@@ -10,6 +10,7 @@ export class StarcraftTournamentSerializer implements ISerializer<ITournament<Bo
 
     serialize(tournament: ITournament<Bot, StarcraftMatch, StarcraftRanking, StarcraftRound>): string {
         const documentData: any = {
+            id: tournament.id,
             name: tournament.name,
             status: tournament.status,
             type: tournament.type,
@@ -51,6 +52,10 @@ export class StarcraftTournamentSerializer implements ISerializer<ITournament<Bo
                 draws: ranking.draws,
                 loses: ranking.loses
             };
+        });
+
+        documentData.players = tournament.players.map( player => {
+            return assignDefined({}, player)
         });
 
         return documentData;
