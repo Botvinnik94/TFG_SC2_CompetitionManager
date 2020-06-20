@@ -12,6 +12,8 @@ export class StarcraftRound implements IRound<Bot, StarcraftMatch> {
 
     readonly onRoundFinished: SubEvent<void> = new SubEvent();
     readonly onRoundStarted: SubEvent<void> = new SubEvent();
+    readonly onMatchScore: SubEvent<{matchIndex: number, position: number}> = new SubEvent();
+    readonly onMatchFinished: SubEvent<{matchIndex: number, info: {winner: number, elos: number[]}}> = new SubEvent();
 
     constructor(matches: StarcraftMatch[],
                 status: "pending" | "ongoing" | "finished",
@@ -24,23 +26,13 @@ export class StarcraftRound implements IRound<Bot, StarcraftMatch> {
         this.finishedAt = finishedAt;
 
         this.matches.forEach( match => {
-            match.onMatchStarted.subscribe(() => {
-                this.onMatchStartedHandler();
-            });
-            match.onMatchFinished.subscribe(() => {
-                this.onMatchFinishedHandler();
-            })
+            this.subscribeToMatchEvents(match);
         });
     }
 
     addMatch(match: StarcraftMatch): void {
         this.matches.push(match);
-        match.onMatchStarted.subscribe(() => {
-            this.onMatchStartedHandler();
-        });
-        match.onMatchFinished.subscribe(() => {
-            this.onMatchFinishedHandler();
-        })
+        this.subscribeToMatchEvents(match);
     }
 
     onMatchStartedHandler(): void {
@@ -51,7 +43,9 @@ export class StarcraftRound implements IRound<Bot, StarcraftMatch> {
         if(this.startedAt == null) this.startedAt = Date.now();
     }
 
-    onMatchReadyHandler(): void {}
+    onMatchReadyHandler(): void {
+        return
+    }
 
     onMatchFinishedHandler(): void {
         const matchNotFinished = this.matches.find( match => {
@@ -63,5 +57,18 @@ export class StarcraftRound implements IRound<Bot, StarcraftMatch> {
             this.finishedAt = Date.now();
             this.onRoundFinished.emit();
         }
+    }
+
+    private subscribeToMatchEvents(match: StarcraftMatch): void {
+        match.onMatchStarted.subscribe(() => {
+            this.onMatchStartedHandler();
+        });
+        match.onMatchFinished.subscribe((info) => {
+            this.onMatchFinished.emit({matchIndex: match.indexId.matchIndex, info: info});
+            this.onMatchFinishedHandler();
+        });
+        match.onMatchScore.subscribe((position) => {
+            this.onMatchScore.emit({matchIndex: match.indexId.matchIndex, position: position});
+        })
     }
 }

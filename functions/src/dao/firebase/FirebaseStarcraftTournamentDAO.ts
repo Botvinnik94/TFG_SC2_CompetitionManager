@@ -19,8 +19,44 @@ export class FirebaseStarcraftTournamentDAO extends AbstractTournamentDAO<Bot, S
         await Db.collection('tournaments').doc(tournamentId).collection('players').doc(playerId).delete();
     }
 
-    async find(tournamentFilter: ITournamentFilter): Promise<ITournament<Bot, StarcraftMatch, StarcraftRanking, StarcraftRound>[]> {
-        throw new Error("Method not implemented.");
+    async find(tournamentFilter: ITournamentFilter, limit?: number): Promise<ITournament<Bot, StarcraftMatch, StarcraftRanking, StarcraftRound>[]> {
+
+        let query: any = Db.collection('tournaments')
+
+        if(tournamentFilter?.status) {
+            query = query.where("status", "==", tournamentFilter.status);
+        }
+
+        if(tournamentFilter?.type) {
+            query = query.where('type', '==', tournamentFilter.type)
+        }
+
+        if(tournamentFilter?.fromDate) {
+            query = query.where('finishedAt', '>=', tournamentFilter.fromDate)
+        }
+
+        if(tournamentFilter?.toDate) {
+            query = query.where('finishedAt', '<=', tournamentFilter.toDate)
+        }
+
+        query = query.orderBy('finishedAt', 'desc')
+
+        if(limit) {
+            query = query.limit(limit)
+        }
+
+        const snapshot = await query.get()
+        const converter = new StarcraftTournamentFirestoreConverter();
+        let tournaments = snapshot.docs.map( async (data: any) => {
+            const tournament = converter.fromFirestore(data);
+            if(tournament) {
+                tournament.players = await this.getPlayersFromCompetition(tournament.id ?? '');
+                return tournament;
+            }
+            else throw new Error(`Tournament not found in DB`)
+        });
+
+        return await Promise.all(tournaments);
     }
 
     async create(tournament: ITournament<Bot, StarcraftMatch, StarcraftRanking, StarcraftRound>): Promise<string> {
@@ -74,8 +110,8 @@ export class FirebaseStarcraftTournamentDAO extends AbstractTournamentDAO<Bot, S
                                                 .get();
 
         const participants = participantsSnapshot.docs.map( botSnap => {
-            const data = botSnap.data()!;
-            return new Bot(botSnap.id, data.name, data.uid, data.script, data.race, data.elo, data.username, data.useravatar);
+            const data = botSnap.data();
+            return new Bot(botSnap.id, data.name, data.uid, data.script, data.race, data.elo, data.username, data.useravatar, data.tournamentWins);
         });
 
         return participants;

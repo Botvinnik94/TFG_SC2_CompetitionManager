@@ -3,8 +3,11 @@ import * as express from 'express';
 //import * as cors from 'cors';
 import { StarcraftTournamentManagerController } from './controllers/StarcraftTournamentManagerController';
 import { StarcraftTournamentSerializer } from './utils/Serializers/StarcraftTournamentSerializer';
-import { auth } from './middleware/Auth';
+import { adminAuth, botAuth } from './middleware/Auth';
 import { StarcraftMatchSerializer } from './utils/Serializers/StarcraftMatchSerializer';
+import { IMatchFilter } from './model/IMatchFilter';
+import { ITournamentFilter } from './model/ITournamentFilter';
+//import { app } from 'firebase-admin';
 
 const privateApp = express();
 const publicApp = express();
@@ -22,6 +25,41 @@ privateApp.put('/:id/initialize', async (req, res) => {
         const controller = new StarcraftTournamentManagerController();
         try {
             await controller.initializeTournament(req.params.id);
+            res.sendStatus(200);
+        }
+        catch(error) {
+            console.error(error);
+            res.sendStatus(404);
+        }
+    }
+    else {
+        res.sendStatus(400);
+    }
+});
+
+privateApp.put('/:id/startMatch', async (req, res) => {
+    if(req.params.id && req.body.roundIndex != undefined && req.body.matchIndex != undefined) {
+        const controller = new StarcraftTournamentManagerController();
+        try {
+            await controller.startMatch(req.params.id, {roundIndex: req.body.roundIndex, matchIndex: req.body.matchIndex})
+            res.sendStatus(200);
+        }
+        catch(error) {
+            console.error(error);
+            res.sendStatus(404);
+        }
+    }
+    else {
+        res.sendStatus(400);
+    }
+});
+
+privateApp.put('/:id/reportMatch', async (req, res) => {
+    console.log(req.body)
+    if(req.params.id && req.body.roundIndex != undefined && req.body.matchIndex != undefined && req.body.reportObject) {
+        const controller = new StarcraftTournamentManagerController();
+        try {
+            await controller.reportMatch(req.params.id, {roundIndex: req.body.roundIndex, matchIndex: req.body.matchIndex}, req.body.reportObject)
             res.sendStatus(200);
         }
         catch(error) {
@@ -54,7 +92,28 @@ publicApp.get('/matches/:id', async (req, res) => {
     }
 })
 
-publicApp.post('/', auth, async (req, res) => {
+publicApp.get('/matches', async (req, res) => {
+    const controller = new StarcraftTournamentManagerController();
+    try {
+        const matchFilter: IMatchFilter = {
+            status: req.query.status,
+            playersId: [req.query.player1, req.query.player2],
+            tournamentId: req.query.tournamentId
+        }
+        const matches = await controller.getMatches(matchFilter, Number.parseInt(req.query.limit))
+        const serializer = new StarcraftMatchSerializer();
+        const responseData = matches.map( match => {
+            return serializer.serialize(match);
+        });
+        res.status(200).send(responseData);
+    }
+    catch(error) {
+        console.error(error);
+        res.sendStatus(404);
+    }
+})
+
+publicApp.post('/', adminAuth, async (req, res) => {
     if(req.body.date && req.body.name && req.body.type) {
         const controller = new StarcraftTournamentManagerController();
         try {
@@ -86,9 +145,31 @@ publicApp.get('/:id', async (req, res) => {
     else {
         res.sendStatus(400);
     }
-})
+});
 
-publicApp.delete('/:id', auth, async (req, res) => {
+publicApp.get('/', async (req, res) => {
+    const controller = new StarcraftTournamentManagerController();
+    try {
+        const tournamentFilter: ITournamentFilter = {
+            status: req.query.status,
+            type: req.query.type,
+            fromDate: Number.parseInt(req.query.fromDate),
+            toDate: Number.parseInt(req.query.toDate)
+        }
+        const tournaments = await controller.getTournaments(tournamentFilter, Number.parseInt(req.query.limit));
+        const serializer = new StarcraftTournamentSerializer();
+        const responseData = tournaments.map( tournament => {
+            return serializer.serialize(tournament);
+        })
+        res.status(200).send(responseData);
+    }
+    catch(error) {
+        console.error(error);
+        res.sendStatus(404);
+    }
+});
+
+publicApp.delete('/:id', adminAuth, async (req, res) => {
     if(req.params.id) {
         const controller = new StarcraftTournamentManagerController();
         try {
@@ -105,7 +186,7 @@ publicApp.delete('/:id', auth, async (req, res) => {
     }
 })
 
-publicApp.put('/:id/inscription', auth, async (req, res) => {
+publicApp.put('/:id/inscription', botAuth, async (req, res) => {
     if(req.params.id) {
         const controller = new StarcraftTournamentManagerController();
         try {
@@ -122,7 +203,7 @@ publicApp.put('/:id/inscription', auth, async (req, res) => {
     }
 })
 
-publicApp.delete('/:id/inscription', auth, async (req, res) => {
+publicApp.delete('/:id/inscription', botAuth, async (req, res) => {
     if(req.params.id) {
         const controller = new StarcraftTournamentManagerController();
         try {

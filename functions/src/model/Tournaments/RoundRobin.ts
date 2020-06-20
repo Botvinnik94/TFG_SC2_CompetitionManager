@@ -51,12 +51,7 @@ implements ITournament<TPlayer, TMatch, TRanking, TRound>
         this.id = id;
 
         this.rounds.forEach(round => {
-            round.onRoundStarted.subscribe( () => {
-                this.onRoundStartedHandler();
-            });
-            round.onRoundFinished.subscribe( () => {
-                this.onRoundFinishedHandler();
-            })
+            this.subscribeToRoundEvents(round);
         })
     }
 
@@ -124,17 +119,20 @@ implements ITournament<TPlayer, TMatch, TRanking, TRound>
 
         if(this.status === "open") {
             const rotablePlayersArray: IPlayer[] = this.players.slice(1);
+            var rounds = this.players.length - 1;
 
             // If the amount of players is not even we add a dummy one for the algorithm, but we dont create matches with him
             if(this.players.length % 2 !== 0) {
+                rounds++;
                 rotablePlayersArray.push({
                     name: 'bye',
                     elo: 0,
-                    id: 'undefined'
+                    id: 'undefined',
+                    tournamentWins: []
                 });
             }
 
-            for (let i = 0; i < this.players.length; i++) {
+            for (let i = 0; i < rounds; i++) {
                 const round = this.tournamentElementsFactory.createTournamentRound();
                 for (let j = 0; j < Math.floor(rotablePlayersArray.length / 2); j++) {
                     if(rotablePlayersArray[j].name != 'bye' && rotablePlayersArray[rotablePlayersArray.length-2-j].name != 'bye') {
@@ -157,10 +155,12 @@ implements ITournament<TPlayer, TMatch, TRanking, TRound>
                 // Rotate
                 let p = rotablePlayersArray.shift();
                 if(p) rotablePlayersArray.push(p);
-
-                // Create ranking for the player
-                this.rankings.push(this.tournamentElementsFactory.createTournamentRanking(this.players[i]));
             }
+
+            this.players.forEach( player => {
+                // Create ranking for the player
+                this.rankings.push(this.tournamentElementsFactory.createTournamentRanking(player));
+            })
 
             this.status = "pending";
         }
@@ -169,18 +169,69 @@ implements ITournament<TPlayer, TMatch, TRanking, TRound>
         }
     }
 
-    public scoreMatch(indexId: IndexId, resultObject: Object): void {
-        this.rounds[indexId.roundIndex].matches[indexId.matchIndex].score(resultObject);
+    public scoreMatch(indexId: IndexId, resultObject: Object, ranked?: boolean): void {
+        this.rounds[indexId.roundIndex].matches[indexId.matchIndex].score(resultObject, ranked);
     }
 
     private addRound(round: TRound): void {
+        this.subscribeToRoundEvents(round);
+        this.rounds.push(round);
+    }
+
+    private subscribeToRoundEvents(round: TRound) {
         round.onRoundStarted.subscribe(() => {
             this.onRoundStartedHandler();
         });
         round.onRoundFinished.subscribe(() => {
             this.onRoundFinishedHandler();
         });
-        this.rounds.push(round);
+        round.onMatchScore.subscribe( idPosition => {
+            const match = round.matches[idPosition.matchIndex];
+            const playerId = match.players[idPosition.position].id;
+
+            // Update rankings (for & against)
+            const winnerRanking = this.rankings.find( value => value.player.id === playerId);
+            if(winnerRanking) winnerRanking.for++
+            const losingPlayers = match.players.filter( value => value.id !== playerId);
+            losingPlayers.forEach( losingPlayer => {
+                const loserRanking = this.rankings.find( value => value.player.id === losingPlayer.id);
+                if(loserRanking) loserRanking.against++;
+            });
+        });
+        round.onMatchFinished.subscribe( idPosition => {
+            const match = round.matches[idPosition.matchIndex];
+            const playerId = match.players[idPosition.info.winner].id;
+
+            // Update elos
+            match.players.forEach( (player, index) => {
+                const ranking = this.rankings.find( value => value.player.id === player.id)
+                if(ranking) ranking.player.elo = idPosition.info.elos[index]
+            })
+
+            // Update rankings (win & loss)
+            const winnerRanking = this.rankings.find( value => value.player.id === playerId);
+            if(winnerRanking) winnerRanking.wins++
+            const losingPlayers = match.players.filter( value => value.id !== playerId);
+            losingPlayers.forEach( losingPlayer => {
+                const loserRanking = this.rankings.find( value => value.player.id === losingPlayer.id);
+                if(loserRanking) loserRanking.loses++;
+            });
+
+            // Sort rankings
+            this.rankings.sort((a, b) => {
+                if(a.wins === b.wins) {
+                    if(b.for === a.for) {
+                        return a.against - b.against
+                    }
+                    else {
+                        return b.for - a.for
+                    }
+                }
+                else {
+                    return b.wins - a.wins
+                }
+            })
+        })
     }
 
 }

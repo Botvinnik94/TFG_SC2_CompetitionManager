@@ -6,6 +6,8 @@ export class StarcraftMatchSerializer implements ISerializer<StarcraftMatch> {
 
     serialize(match: StarcraftMatch): string {
         const documentData: any = {
+            id: match.id,
+            tournamentId: match.tournamentId,
             indexId: match.indexId,
             players: match.players.map( player => {
                 return assignDefined({}, player);
@@ -16,7 +18,8 @@ export class StarcraftMatchSerializer implements ISerializer<StarcraftMatch> {
                     participant1: assignDefined({}, game.participant1),
                     participant2: assignDefined({}, game.participant2),
                     winner: game.winner,
-                    map: game.map
+                    map: game.map,
+                    replayURL: game.replayURL
                 }
             }),
             result: match.result,

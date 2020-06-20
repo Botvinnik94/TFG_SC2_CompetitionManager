@@ -11,6 +11,8 @@ export interface IRound<TPlayer extends IPlayer, TMatch extends IMatch<TPlayer>>
 
     readonly onRoundFinished: SubEvent<void>
     readonly onRoundStarted: SubEvent<void>
+    readonly onMatchScore: SubEvent<{matchIndex: number, position: number}>     // Gives score player position
+    readonly onMatchFinished: SubEvent<{matchIndex: number, info: {winner: number, elos: number[]}}>  // Gives winner player position & array of elos of each player after the match
 
     onMatchStartedHandler(): void;
     onMatchReadyHandler(): void;

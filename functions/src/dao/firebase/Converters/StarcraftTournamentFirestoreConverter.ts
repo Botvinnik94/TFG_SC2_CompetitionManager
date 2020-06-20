@@ -29,13 +29,21 @@ export class StarcraftTournamentFirestoreConverter implements IFirestoreConverte
                 finishedAt: round.finishedAt,
                 matches: round.matches.map( match => {
                             return {
+                                id: match.id,
+                                tournamentId: match.tournamentId,
                                 indexId: match.indexId,
                                 players: match.players.map( player => {
                                     return assignDefined({}, player);
                                 }),
                                 bestOf: match.bestOf,
                                 games: match.games.map( game => {
-                                    return assignDefined({}, game)
+                                    return {
+                                        participant1: assignDefined({}, game.participant1),
+                                        participant2: assignDefined({}, game.participant2),
+                                        winner: game.winner,
+                                        map: game.map,
+                                        replayURL: game.replayURL
+                                    }
                                 }),
                                 result: match.result,
                                 status: match.status,
@@ -70,30 +78,31 @@ export class StarcraftTournamentFirestoreConverter implements IFirestoreConverte
                     const players: Bot[] = matchData.players.map( (playerData: any) => {
                         return new Bot(playerData.id, playerData.name, playerData.uid,
                                        playerData.script, playerData.race, playerData.elo,
-                                       playerData.username, playerData.useravatar)
+                                       playerData.username, playerData.useravatar, playerData.tournamentWins)
                     });
                     const games: IStarcraftGame[] = matchData.games.map ( (gameData: any) => {
                         return {
                             participant1: new Bot(gameData.participant1.id, gameData.participant1.name, gameData.participant1.uid,
                                                   gameData.participant1.script, gameData.participant1.race, gameData.participant1.elo,
-                                                  gameData.participant1.username, gameData.participant1.useravatar),
+                                                  gameData.participant1.username, gameData.participant1.useravatar, gameData.participant1.tournamentWins),
                             participant2: new Bot(gameData.participant2.id, gameData.participant2.name, gameData.participant2.uid,
                                                   gameData.participant2.script, gameData.participant2.race, gameData.participant2.elo,
-                                                  gameData.participant2.username, gameData.participant2.useravatar),
+                                                  gameData.participant2.username, gameData.participant2.useravatar, gameData.participant2.tournamentWins),
                             winner: gameData.winner,
-                            map: gameData.map
+                            map: gameData.map,
+                            replayURL: gameData.replayURL
                         }
                     });
-                    return starcraftElementsFactory.createTournamentMatch(  data.indexId,
-                                                                            data.tournamentId,
+                    return starcraftElementsFactory.createTournamentMatch(  matchData.indexId,
+                                                                            matchData.tournamentId,
                                                                             players,
-                                                                            data.result,
-                                                                            data.status,
-                                                                            data.startedAt,
-                                                                            data.finishedAt,
-                                                                            data.id,
+                                                                            matchData.result,
+                                                                            matchData.status,
+                                                                            matchData.startedAt,
+                                                                            matchData.finishedAt,
+                                                                            matchData.id,
                                                                             games,
-                                                                            data.bestOf);
+                                                                            matchData.bestOf);
                 });
                 return starcraftElementsFactory.createTournamentRound(matches, roundData.status, roundData.startedAt, roundData.finishedAt);
             });
@@ -102,7 +111,7 @@ export class StarcraftTournamentFirestoreConverter implements IFirestoreConverte
                 return starcraftElementsFactory.createTournamentRanking(
                     new Bot(rankingData.player.id, rankingData.player.name, rankingData.player.uid,
                             rankingData.player.script, rankingData.player.race, rankingData.player.elo,
-                            rankingData.player.username, rankingData.player.useravatar),
+                            rankingData.player.username, rankingData.player.useravatar, rankingData.tournamentWins),
                     rankingData.for,
                     rankingData.against,
                     rankingData.wins,

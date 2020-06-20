@@ -6,5 +6,6 @@ export interface IStarcraftGame {
     participant2: Bot;
     winner: 0 | 1 | "draw";
     map: string;
+    replayURL: string;
 
 }

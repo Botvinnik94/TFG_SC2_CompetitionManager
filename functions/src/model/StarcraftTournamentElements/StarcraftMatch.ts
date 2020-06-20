@@ -19,7 +19,8 @@ export class StarcraftMatch implements IMatch<Bot> {
 
     readonly onMatchReady: SubEvent<void> = new SubEvent();
     readonly onMatchStarted: SubEvent<void> = new SubEvent();
-    readonly onMatchFinished: SubEvent<void> = new SubEvent();
+    readonly onMatchFinished: SubEvent<{winner: number, elos: number[]}> = new SubEvent();
+    readonly onMatchScore: SubEvent<number> = new SubEvent();
 
     constructor(indexId: IndexId,
                 players: Bot[], 
@@ -53,7 +54,7 @@ export class StarcraftMatch implements IMatch<Bot> {
             }
         }
         else {
-            throw new Error(`Match ${this.indexId} is full of players`);
+            throw new Error(`Match (${this.indexId.roundIndex},${this.indexId.matchIndex}) is full of players`);
         }
     }
 
@@ -64,33 +65,48 @@ export class StarcraftMatch implements IMatch<Bot> {
             this.onMatchStarted.emit();
         }
         else {
-            throw new Error(`Match ${this.indexId} has already started`);
+            throw new Error(`Match (${this.indexId.roundIndex},${this.indexId.matchIndex}) has already started`);
         }
     }
 
-    score(game: IStarcraftGame, ranked?: boolean): void {
+    score(reportObject: { winner: 0 | 1 | "draw", map: string, replayURL: string}, ranked?: boolean): void {
 
-        if(game.participant1.id === this.players[0].id && game.participant2.id === this.players[1].id && this.status === "ongoing") {
+        const game: IStarcraftGame = {
+            participant1: this.players[0],
+            participant2: this.players[1],
+            winner: reportObject.winner,
+            map: reportObject.map,
+            replayURL: reportObject.replayURL
+        };
+
+        if(this.status === "ongoing") {
             this.games.push(game);
-            if(game.winner !== 'draw' && ++this.result[game.winner] === (Math.floor(this.bestOf / 2) + 1)) {
-                this.status = "finished";
-                this.finishedAt = Date.now();
+            if(game.winner !== 'draw') {
+                this.onMatchScore.emit(game.winner);
 
-                if(ranked) {
-                    const EloRank = require("elo-rank").default;
-                    const elorank = new EloRank();
-                    const expectedParticipant1 = elorank.getExpected(game.participant1.elo, game.participant2.elo);
-                    const expectedParticipant2 = elorank.getExpected(game.participant2.elo, game.participant1.elo);
+                if(++this.result[game.winner] === (Math.floor(this.bestOf / 2) + 1)) {
+                    this.status = "finished";
+                    this.finishedAt = Date.now();
 
-                    game.participant1.elo = elorank.updateRating(expectedParticipant1, (game.winner == 0) ? 1 : 0, game.participant1.elo);
-                    game.participant2.elo = elorank.updateRating(expectedParticipant2, (game.winner == 1) ? 1 : 0, game.participant2.elo);
+                    let elo1 = game.participant1.elo
+                    let elo2 = game.participant2.elo
+
+                    if(ranked) {
+                        const EloRank = require("elo-rank").default;
+                        const elorank = new EloRank();
+                        const expectedParticipant1 = elorank.getExpected(game.participant1.elo, game.participant2.elo);
+                        const expectedParticipant2 = elorank.getExpected(game.participant2.elo, game.participant1.elo);
+
+                        elo1 = elorank.updateRating(expectedParticipant1, (game.winner == 0) ? 1 : 0, game.participant1.elo);
+                        elo2 = elorank.updateRating(expectedParticipant2, (game.winner == 1) ? 1 : 0, game.participant2.elo);
+                    }
+
+                    this.onMatchFinished.emit({winner: game.winner, elos: [elo1, elo2]});
                 }
-
-                this.onMatchFinished.emit();
             }
         }
         else {
-            throw new Error(`Match ${this.indexId} is not ongoing or the game does not correspond with the match`);
+            throw new Error(`Match (${this.indexId.roundIndex},${this.indexId.matchIndex}) is not ongoing`);
         }
 
     }

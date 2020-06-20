@@ -31,7 +31,7 @@ export interface ITournament<TPlayer extends IPlayer,
     results(playerId: string): TRanking | undefined;
 
     initializeTournament(): void;
-    scoreMatch(indexId: IndexId, resultObject: Object): void;
+    scoreMatch(indexId: IndexId, resultObject: Object, ranked?: boolean): void;
 
     onRoundStartedHandler(): void;
     onRoundFinishedHandler(): void

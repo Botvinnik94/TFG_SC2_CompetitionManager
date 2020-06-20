@@ -1,6 +1,8 @@
 export interface ITournamentFilter {
 
     type?: string;
-    playerId?: string;
+    status?: string;
+    fromDate?: number;
+    toDate?: number;
 
 }

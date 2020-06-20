@@ -10,7 +10,7 @@ export class BotFirebaseConverter implements IFirestoreConverter<Bot> {
 
     fromFirestore(snapshot: FirebaseFirestore.DocumentSnapshot<FirebaseFirestore.DocumentData>): Bot | undefined {
         const data = snapshot.data();
-        if(data) return new Bot(snapshot.id, data.name, data.uid, data.script, data.race, data.elo, data.username, data.useravatar);
+        if(data) return new Bot(snapshot.id, data.name, data.uid, data.script, data.race, data.elo, data.username, data.useravatar, data.tournamentWins);
         else return undefined;
     }
 

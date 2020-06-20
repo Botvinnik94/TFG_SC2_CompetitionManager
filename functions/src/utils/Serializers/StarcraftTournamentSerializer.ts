@@ -26,6 +26,8 @@ export class StarcraftTournamentSerializer implements ISerializer<ITournament<Bo
                 finishedAt: round.finishedAt,
                 matches: round.matches.map( match => {
                             return {
+                                id: match.id,
+                                tournamentId: match.tournamentId,
                                 indexId: match.indexId,
                                 players: match.players.map( player => {
                                     return assignDefined({}, player);

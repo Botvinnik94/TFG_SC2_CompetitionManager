@@ -11,6 +11,7 @@ export class StarcraftMatchFirestoreConverter implements IFirestoreConverter<Sta
 
         const documentData: FirebaseFirestore.DocumentData = {
             indexId: match.indexId,
+            tournamentId: match.tournamentId,
             players: match.players.map( player => {
                 return assignDefined({}, player);
             }),
@@ -20,7 +21,8 @@ export class StarcraftMatchFirestoreConverter implements IFirestoreConverter<Sta
                     participant1: assignDefined({}, game.participant1),
                     participant2: assignDefined({}, game.participant2),
                     winner: game.winner,
-                    map: game.map
+                    map: game.map,
+                    replayURL: game.replayURL
                 }
             }),
             result: match.result,
@@ -39,18 +41,19 @@ export class StarcraftMatchFirestoreConverter implements IFirestoreConverter<Sta
             const players: Bot[] = data.players.map( (playerData: any) => {
                 return new Bot(playerData.id, playerData.name, playerData.uid,
                                playerData.script, playerData.race, playerData.elo,
-                               playerData.username, playerData.useravatar)
+                               playerData.username, playerData.useravatar, playerData.tournamentWins)
             });
             const games: IStarcraftGame[] = data.games.map ( (gameData: any) => {
                 return {
                     participant1: new Bot(gameData.participant1.id, gameData.participant1.name, gameData.participant1.uid,
                                           gameData.participant1.script, gameData.participant1.race, gameData.participant1.elo,
-                                          gameData.participant1.username, gameData.participant1.useravatar),
+                                          gameData.participant1.username, gameData.participant1.useravatar, gameData.participant1.tournamentWins),
                     participant2: new Bot(gameData.participant2.id, gameData.participant2.name, gameData.participant2.uid,
                                           gameData.participant2.script, gameData.participant2.race, gameData.participant2.elo,
-                                          gameData.participant2.username, gameData.participant2.useravatar),
+                                          gameData.participant2.username, gameData.participant2.useravatar, gameData.participant2.tournamentWins),
                     winner: gameData.winner,
-                    map: gameData.map
+                    map: gameData.map,
+                    replayURL: gameData.replayURL
                 }
             });
             const starcraftElementsFactory = new StarcraftTournamentElementsFactory();
@@ -61,7 +64,7 @@ export class StarcraftMatchFirestoreConverter implements IFirestoreConverter<Sta
                                                                     data.status,
                                                                     data.startedAt,
                                                                     data.finishedAt,
-                                                                    data.id,
+                                                                    snapshot.id,
                                                                     games,
                                                                     data.bestOf);
         }
