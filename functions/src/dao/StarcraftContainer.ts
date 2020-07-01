@@ -9,6 +9,10 @@ import { IDAOFactory } from "./IDAOFactory";
 
 export class StarcraftContainer extends Container<Bot, StarcraftMatch, StarcraftRanking, StarcraftRound> {
 
+    /**
+     * Returns a Data Access Object Factory that access and saves Objects containing Starcraft players, matches, rankings and rounds
+     * @param type The database provider
+     */
     public getDAOFactory(type: PersistenceType): IDAOFactory<Bot, StarcraftMatch, StarcraftRanking, StarcraftRound> {
         switch (type) {
             case PersistenceType.Firebase:

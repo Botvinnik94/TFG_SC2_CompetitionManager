@@ -11,8 +11,19 @@ export interface IDAOFactory<TPlayer extends IPlayer,
                              TRanking extends IRanking<TPlayer>, 
                              TRound extends IRound<TPlayer, TMatch>> {
 
+    /**
+     * Returns a Data Access Object of tournaments from an unknown game
+     */
     createTournamentDAO(): AbstractTournamentDAO<TPlayer, TMatch, TRanking, TRound>
+
+    /**
+     * Returns a Data Access Object of matches from an unknown game
+     */
     createMatchDAO(): AbstractMatchDAO<TPlayer, TMatch>
+
+    /**
+     * Return a Data Access Object of players from an unknown game
+     */
     createPlayerDAO(): AbstractPlayerDAO<TPlayer>
 
 }

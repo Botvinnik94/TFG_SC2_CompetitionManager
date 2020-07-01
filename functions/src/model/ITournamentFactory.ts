@@ -11,6 +11,19 @@ export interface ITournamentFactory<TPlayer extends IPlayer,
                                     TRound extends IRound<TPlayer, TMatch>>
 {
 
+    /**
+     * Returns an instance of an unknown type of tournament of an unknown game
+     * @param name 
+     * @param startingDate 
+     * @param tournamentElementsFactory The factory of the elements of the game (player, match, ranking, round)
+     * @param status 
+     * @param players 
+     * @param rankings 
+     * @param rounds 
+     * @param startedAt 
+     * @param finishedAt 
+     * @param id 
+     */
     createTournament(name: string,
                      startingDate: number,
                      tournamentElementsFactory: ITournamentElementsFactory<TPlayer, TMatch, TRanking, TRound>,

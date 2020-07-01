@@ -13,6 +13,13 @@ export class TournamentServiceFactory<  TPlayer extends IPlayer,
                                         TRanking extends IRanking<TPlayer>, 
                                         TRound extends IRound<TPlayer, TMatch>> {
 
+    /**
+     * Creates a tournament service to interact with tournaments in the system
+     * @param tournamentDAO Concrete access to a database where the tournaments are located
+     * @param matchDAO Concrete access to a database where the matches are located
+     * @param playerDAO Concerete access to a database where the players are located
+     * @param tournament The tournament subject to interact to, or its id for getting it from the database
+     */
     async createTournamentService(tournamentDAO: AbstractTournamentDAO<TPlayer, TMatch, TRanking, TRound>,
                                   matchDAO: AbstractMatchDAO<TPlayer, TMatch>,
                                   playerDAO: AbstractPlayerDAO<TPlayer>,

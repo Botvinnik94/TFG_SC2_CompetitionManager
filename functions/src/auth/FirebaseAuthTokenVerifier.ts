@@ -6,6 +6,10 @@ import { Bot } from "../model/StarcraftTournamentElements/Bot";
 
 export class FirebaseAuthTokenVerifier implements IAuthTokenVerifier {
 
+    /**
+     * Returns the data of the corresponding user from a JWT token using Firebase Authentication
+     * @param token 
+     */
     async verify(token: string): Promise<IUser> {
         const decodedToken = await Auth.verifyIdToken(token);
         const snapshot = await Db.collection('users').doc(decodedToken.uid).get();

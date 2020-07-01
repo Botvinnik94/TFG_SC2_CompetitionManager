@@ -10,6 +10,17 @@ export interface ITournamentElementsFactory<TPlayer extends IPlayer,
                                             TRound extends IRound<TPlayer, TMatch>>
 {
 
+    /**
+     * Returns an instance of a match from an unknown game
+     * @param indexId 
+     * @param tournamentId 
+     * @param players 
+     * @param result 
+     * @param status 
+     * @param startedAt 
+     * @param finishedAt 
+     * @param id 
+     */
     createTournamentMatch(  indexId: IndexId,
                             tournamentId?: string,
                             players?: TPlayer[],
@@ -19,6 +30,15 @@ export interface ITournamentElementsFactory<TPlayer extends IPlayer,
                             finishedAt?: number | null,
                             id?: string): TMatch;
 
+    /**
+     * Returns an instance of a ranking from an unknown game
+     * @param player 
+     * @param scoreFor 
+     * @param against 
+     * @param wins 
+     * @param draws 
+     * @param loses 
+     */
     createTournamentRanking(player: TPlayer,
                             scoreFor?: number,
                             against?: number,
@@ -26,6 +46,13 @@ export interface ITournamentElementsFactory<TPlayer extends IPlayer,
                             draws?: number,
                             loses?: number): TRanking;
 
+    /**
+     * Returns an instance of a round from an unknown game
+     * @param matches 
+     * @param status 
+     * @param startedAt 
+     * @param finishedAt 
+     */
     createTournamentRound(  matches?: TMatch[],
                             status?: "pending" | "ongoing" | "finished",
                             startedAt?: number,

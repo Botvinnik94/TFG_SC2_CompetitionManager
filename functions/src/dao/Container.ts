@@ -11,6 +11,10 @@ export abstract class Container<TPlayer extends IPlayer,
                                 TRound extends IRound<TPlayer, TMatch>>
 {
 
+    /**
+     * Returns an abstract Data Access Object Factory from an unknown game
+     * @param type The database provider
+     */
     public abstract getDAOFactory(type: PersistenceType): IDAOFactory<TPlayer, TMatch, TRanking, TRound>;
 
 }

@@ -1,6 +1,12 @@
 import { AuthVerifierSelector } from "../auth/AuthVerifierSelector";
 import { AuthProviderType } from "../auth/AuthProviderType";
 
+/**
+ * Checks if the request has a valid token, indicating that an user is signed in
+ * @param req 
+ * @param res 
+ * @param next 
+ */
 export async function simpleAuth(req: any, res: any, next: any) {
     try {
         const token = req.headers.authorization.split(' ')[1];
@@ -14,6 +20,12 @@ export async function simpleAuth(req: any, res: any, next: any) {
     }
 }
 
+/**
+ * Checks if the player in the request corresponds to the user the token is referring to
+ * @param req 
+ * @param res 
+ * @param next 
+ */
 export async function botAuth(req: any, res: any, next: any) {
     try {
         const token = req.headers.authorization.split(' ')[1];
@@ -37,7 +49,12 @@ export async function botAuth(req: any, res: any, next: any) {
     }
 }
 
-
+/**
+ * Checks if the token corresponds to an admin
+ * @param req 
+ * @param res 
+ * @param next 
+ */
 export async function adminAuth(req: any, res: any, next: any) {
     try {
         const token = req.headers.authorization.split(' ')[1];

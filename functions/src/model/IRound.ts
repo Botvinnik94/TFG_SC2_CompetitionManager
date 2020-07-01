@@ -18,5 +18,9 @@ export interface IRound<TPlayer extends IPlayer, TMatch extends IMatch<TPlayer>>
     onMatchReadyHandler(): void;
     onMatchFinishedHandler(): void;
 
+    /**
+     * Adds a new match to the round
+     * @param match 
+     */
     addMatch(match: TMatch): void;
 }

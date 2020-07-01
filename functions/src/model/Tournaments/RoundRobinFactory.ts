@@ -13,6 +13,19 @@ export class RoundRobinFactory< TPlayer extends IPlayer,
 
 implements ITournamentFactory<TPlayer, TMatch, TRanking, TRound> {
 
+    /**
+     * Returns an instance of a Round-Robin type of tournament of an unknown game
+     * @param name 
+     * @param startingDate 
+     * @param tournamentElementsFactory The factory of the elements of the game (player, match, ranking, round)
+     * @param status 
+     * @param players 
+     * @param rankings 
+     * @param rounds 
+     * @param startedAt 
+     * @param finishedAt 
+     * @param id 
+     */
     createTournament(name: string, 
                      startingDate: number,
                      tournamentElementsFactory: ITournamentElementsFactory<TPlayer, TMatch, TRanking, TRound>,

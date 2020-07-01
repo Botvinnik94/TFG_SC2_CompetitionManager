@@ -11,6 +11,10 @@ export class TournamentTypeSelector<TPlayer extends IPlayer,
                                     TRound extends IRound<TPlayer, TMatch>>
 {
 
+    /**
+     * Returns an instance of a factory for creating one type of tournament of an unknown game
+     * @param type The type of the tournament
+     */
     public getTournamentFactory(type: "round-robin"): ITournamentFactory<TPlayer, TMatch, TRanking, TRound> {
         switch (type) {
             case "round-robin":
